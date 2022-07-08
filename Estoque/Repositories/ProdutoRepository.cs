@@ -31,10 +31,10 @@ namespace Estoque.Repositories
                 return id;
 
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 
@@ -53,10 +53,10 @@ namespace Estoque.Repositories
                                     param: _produto);
 
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 
@@ -72,10 +72,10 @@ namespace Estoque.Repositories
                                     param: new { IdProduto });
 
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 
