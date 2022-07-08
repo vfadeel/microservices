@@ -1,5 +1,5 @@
 using Dapper;
-using Estoque.Infrastructure;
+using Infraestrutura.Database;
 using Estoque.Models;
 
 namespace Estoque.Repositories

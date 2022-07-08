@@ -1,8 +1,7 @@
-
-
 using System.Data;
+using Microsoft.Extensions.Configuration;
 
-namespace Estoque.Infrastructure
+namespace Infraestrutura.Database
 {
     public interface IDatabase
     {

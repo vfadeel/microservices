@@ -1,4 +1,4 @@
-using Estoque.Infrastructure;
+using Infraestrutura.Database;
 using Estoque.Models;
 using Estoque.Publishers;
 using RabbitMQ.Client;

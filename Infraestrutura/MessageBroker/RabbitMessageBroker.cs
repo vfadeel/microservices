@@ -1,6 +1,7 @@
 using RabbitMQ.Client;
+using Microsoft.Extensions.Configuration;
 
-namespace Estoque.Infrastructure
+namespace Infraestrutura.Messager
 {
     public class RabbitMessageBroker : IMessageBroker
     {
