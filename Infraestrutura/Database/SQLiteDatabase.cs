@@ -1,8 +1,9 @@
 using System.Data;
 using System.Data.Common;
 using System.Data.SQLite;
+using Microsoft.Extensions.Configuration;
 
-namespace Estoque.Infrastructure
+namespace Infraestrutura.Database
 {
     public class SQLiteDatabase : IDatabase
     {

@@ -1,10 +1,10 @@
 using System.Text;
 using System.Text.Json;
-using Estoque.Infrastructure;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using Microsoft.Extensions.Configuration;
 
-namespace Estoque.Publishers
+namespace Infraestrutura.Publishers
 {
     public abstract class BasicPublisher<T>
     {
