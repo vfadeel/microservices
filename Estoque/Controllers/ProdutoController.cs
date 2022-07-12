@@ -40,6 +40,8 @@ public class ProdutoController : ControllerBase
     {
         _produtoRepository.Alterar(_produto);
         
+
+
         _produtoAlteracaoPublisher.Publicar(_produto);
     }
 

@@ -22,10 +22,11 @@ namespace Estoque.Repositories
 
             try
             {
-                int id = connection.Execute(@"INSERT INTO Produto (Nome, 
-                                                                   Preco) 
-                                              VALUES (@Nome, 
-                                                      @Preco)",
+                int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO Produto (Nome, 
+                                                                               Preco) 
+                                                          VALUES (@Nome, 
+                                                                  @Preco);
+                                                          SELECT last_insert_rowid()",
                                              param: _produto);
 
                 return id;

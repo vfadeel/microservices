@@ -22,12 +22,13 @@ namespace Estoque.Repositories
 
             try
             {
-                int id = connection.Execute(@"INSERT INTO MovimentoEstoque (IdProduto,
+                int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO MovimentoEstoque (IdProduto,
                                                                             Quantidade,
                                                                             Tipo) 
                                               VALUES (@IdProduto,
                                                       @Quantidade,
-                                                      @Tipo)",
+                                                      @Tipo);
+                                              SELECT last_insert_rowid()",
                                              param: _movimentoEstoque);
 
                 return id;
