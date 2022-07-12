@@ -1,6 +1,7 @@
 using Compra.Consumers;
-using Compra.Infrastructure;
 using Compra.Repositories;
+using Infraestrutura.Database;
+using Infraestrutura.Messager;
 
 var builder = WebApplication.CreateBuilder(args);
 

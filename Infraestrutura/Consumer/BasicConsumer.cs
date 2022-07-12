@@ -1,9 +1,11 @@
 using System.Text;
-using Compra.Infrastructure;
+using Infraestrutura.Messager;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
-namespace Compra.Consumers
+namespace Infraestrutura.Consumers
 {
     public abstract class BasicConsumer : IHostedService
     {

@@ -31,7 +31,7 @@ public class ProdutoController : ControllerBase
         _produto.IdProduto = _produtoRepository.Incluir(_produto);
 
         _produtoInclusaoPublisher.Publicar(_produto);
-
+        
         return _produto.IdProduto;
     }
 
@@ -40,8 +40,6 @@ public class ProdutoController : ControllerBase
     {
         _produtoRepository.Alterar(_produto);
         
-
-
         _produtoAlteracaoPublisher.Publicar(_produto);
     }
 

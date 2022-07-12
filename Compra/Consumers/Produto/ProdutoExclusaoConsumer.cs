@@ -1,10 +1,8 @@
 using System.Text;
 using System.Text.Json;
-using Compra.Infrastructure;
-using Compra.Models;
 using Compra.Repositories;
+using Infraestrutura.Consumers;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Compra.Consumers
 {

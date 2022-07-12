@@ -24,9 +24,9 @@ namespace Estoque.Repositories
             {
                 int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO Produto (Nome, 
                                                                                Preco) 
-                                                          VALUES (@Nome, 
-                                                                  @Preco);
-                                                          SELECT last_insert_rowid()",
+                                                               VALUES (@Nome, 
+                                                                       @Preco);
+                                                               SELECT last_insert_rowid()",
                                              param: _produto);
 
                 return id;
@@ -95,10 +95,10 @@ namespace Estoque.Repositories
 
                 return _produto;
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 
@@ -115,10 +115,10 @@ namespace Estoque.Repositories
 
                 return _lstProduto;
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 

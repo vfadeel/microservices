@@ -1,5 +1,5 @@
 using Dapper;
-using Compra.Infrastructure;
+using Infraestrutura.Database;
 
 namespace Compra.Repositories
 {

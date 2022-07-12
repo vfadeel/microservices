@@ -98,10 +98,10 @@ namespace Estoque.Repositories
 
                 return _movimentoEstoque;
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 
@@ -118,10 +118,10 @@ namespace Estoque.Repositories
 
                 return _lstMovimentoEstoque;
             }
-            catch (Exception e)
+            catch
             {
                 connection.Close();
-                throw e;
+                throw;
             }
         }
 
