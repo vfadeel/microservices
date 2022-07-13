@@ -34,12 +34,12 @@ namespace Compra.Consumers
 
         public override void ProcessarMensagem(string Mensagem)
         {
-            Produto? _produto = JsonSerializer.Deserialize<Produto>(Mensagem);
+            ProdutoAlteracaoEvento? _produtoAlteracaoEvento = JsonSerializer.Deserialize<ProdutoAlteracaoEvento>(Mensagem);
 
-            _produtoRepository.Alterar(_produto);
+            _produtoRepository.Alterar(_produtoAlteracaoEvento.Produto);
 
             _eventoRepository.Incluir(new Evento(){
-                Message = JsonSerializer.Serialize(_produto),
+                Message = JsonSerializer.Serialize(_produtoAlteracaoEvento.Produto),
                 Exchange = exchange,
                 Tipo = "Consumer",
                 Operacao = "Alteracao"

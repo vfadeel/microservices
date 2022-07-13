@@ -34,9 +34,9 @@ namespace Compra.Consumers
 
         public override void ProcessarMensagem(string Mensagem)
         {
-            int IdProduto = JsonSerializer.Deserialize<int>(Mensagem);
+            ProdutoExclusaoEvento? _produtoExclusaoEvento = JsonSerializer.Deserialize<ProdutoExclusaoEvento>(Mensagem);
 
-            _produtoRepository.Excluir(IdProduto);
+            _produtoRepository.Excluir(_produtoExclusaoEvento.IdProduto);
 
             _eventoRepository.Incluir(new Evento()
             {
