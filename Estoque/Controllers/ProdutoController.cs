@@ -14,7 +14,7 @@ public class ProdutoController : ControllerBase
     private readonly ProdutoAlteracaoPublisher _produtoAlteracaoPublisher;
     private readonly ProdutoExclusaoPublisher _produtoExclusaoPublisher;
 
-    public ProdutoController(ProdutoRepository produtoRepository, 
+    public ProdutoController(ProdutoRepository produtoRepository,
                              ProdutoInclusaoPublisher produtoInclusaoPublisher,
                              ProdutoExclusaoPublisher produtoExclusaoPublisher,
                              ProdutoAlteracaoPublisher produtoAlteracaoPublisher)
@@ -30,8 +30,11 @@ public class ProdutoController : ControllerBase
     {
         _produto.IdProduto = _produtoRepository.Incluir(_produto);
 
-        _produtoInclusaoPublisher.Publicar(_produto);
-        
+        _produtoInclusaoPublisher.Publicar(new ProdutoInclusaoEvento()
+        {
+            Produto = _produto
+        });
+
         return _produto.IdProduto;
     }
 
@@ -39,8 +42,11 @@ public class ProdutoController : ControllerBase
     public void Alterar(Produto _produto)
     {
         _produtoRepository.Alterar(_produto);
-        
-        _produtoAlteracaoPublisher.Publicar(_produto);
+
+        _produtoAlteracaoPublisher.Publicar(new ProdutoAlteracaoEvento()
+        {
+            Produto = _produto
+        });
     }
 
     [HttpGet("{IdProduto}")]
@@ -59,7 +65,10 @@ public class ProdutoController : ControllerBase
     public void Excluir(int IdProduto)
     {
         _produtoRepository.Excluir(IdProduto);
-        
-        _produtoExclusaoPublisher.Publicar(IdProduto);
+
+        _produtoExclusaoPublisher.Publicar(new ProdutoExclusaoEvento()
+        {
+            IdProduto = IdProduto
+        });
     }
 }

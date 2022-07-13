@@ -6,7 +6,7 @@ using RabbitMQ.Client;
 
 namespace Estoque.Publishers
 {
-    public class ProdutoExclusaoPublisher : BasicPublisher<int>
+    public class ProdutoExclusaoPublisher : BasicPublisher<ProdutoExclusaoEvento>
     {
         private readonly EventoRepository _eventoRepository;
 

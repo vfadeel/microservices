@@ -6,7 +6,7 @@ using Estoque.Repositories;
 
 namespace Estoque.Publishers
 {
-    public class ProdutoInclusaoPublisher : BasicPublisher<Produto>
+    public class ProdutoInclusaoPublisher : BasicPublisher<ProdutoInclusaoEvento>
     {
         private readonly EventoRepository _eventoRepository;
 

@@ -7,7 +7,7 @@ using System.Text.Json;
 
 namespace Estoque.Publishers
 {
-    public class ProdutoAlteracaoPublisher : BasicPublisher<Produto>
+    public class ProdutoAlteracaoPublisher : BasicPublisher<ProdutoAlteracaoEvento>
     {
         private readonly EventoRepository _eventoRepository;
 
