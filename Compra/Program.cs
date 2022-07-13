@@ -17,6 +17,7 @@ builder.Services.AddScoped<IMessageBroker, RabbitMessageBroker>();
 builder.Services.AddScoped<FornecedorRepository>();
 builder.Services.AddScoped<CompraRepository>();
 builder.Services.AddScoped<ProdutoRepository>();
+builder.Services.AddScoped<EventoRepository>();
 
 builder.Services.AddHostedService<ProdutoInclusaoConsumer>();
 builder.Services.AddHostedService<ProdutoAlteracaoConsumer>();

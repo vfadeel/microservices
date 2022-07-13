@@ -12,12 +12,14 @@ namespace Compra.Consumers
         private const string exchange = "ProdutoAlteracao";
         private const string queue = "ProdutoAlteracaoCompra";
         private readonly ProdutoRepository _produtoRepository;
+        private readonly EventoRepository _eventoRepository;
 
         public ProdutoAlteracaoConsumer(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 _produtoRepository = scope.ServiceProvider.GetRequiredService<ProdutoRepository>();
+                _eventoRepository = scope.ServiceProvider.GetRequiredService<EventoRepository>();
             }
         }
 
@@ -35,6 +37,13 @@ namespace Compra.Consumers
             Produto? _produto = JsonSerializer.Deserialize<Produto>(Mensagem);
 
             _produtoRepository.Alterar(_produto);
+
+            _eventoRepository.Incluir(new Evento(){
+                Message = JsonSerializer.Serialize(_produto),
+                Exchange = exchange,
+                Tipo = "Consumer",
+                Operacao = "Alteracao"
+            });
         }
     }
 }
