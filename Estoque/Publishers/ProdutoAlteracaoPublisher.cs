@@ -29,7 +29,8 @@ namespace Estoque.Publishers
             Evento _evento = new Evento()
             {
                 Message = message,
-                Exchange = base.exchange
+                Exchange = base.exchange,
+                
             };
 
             _eventoRepository.Incluir(_evento);

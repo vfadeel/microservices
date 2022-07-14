@@ -1,4 +1,4 @@
-namespace Estoque.Models
+namespace Venda.Models
 {
     public class Evento
     {

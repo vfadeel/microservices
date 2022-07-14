@@ -4,14 +4,14 @@ using RabbitMQ.Client;
 using Venda.Models;
 using Venda.Repositories;
 
-public class ProdutoInclusaoConsumer : BasicConsumer
+public class ProdutoAlteracaoConsumer : BasicConsumer
 {
-    private const string exchange = "ProdutoInclusao";
-    private const string queue = "ProdutoInclusaoVenda";
+    private const string exchange = "ProdutoAlteracao";
+    private const string queue = "ProdutoAlteracaoVenda";
     private readonly ProdutoRepository _produtoRepository;
     private readonly EventoRepository _eventoRepository;
 
-    public ProdutoInclusaoConsumer(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
+    public ProdutoAlteracaoConsumer(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
     {
         using (var scope = serviceScopeFactory.CreateScope())
         {
@@ -31,16 +31,16 @@ public class ProdutoInclusaoConsumer : BasicConsumer
 
     public override void ProcessarMensagem(string Mensagem)
     {
-        ProdutoInclusaoEvento? _produtoInclusaoEvento = JsonSerializer.Deserialize<ProdutoInclusaoEvento>(Mensagem);
+        ProdutoAlteracaoEvento? _produtoAlteracaoEvento = JsonSerializer.Deserialize<ProdutoAlteracaoEvento>(Mensagem);
 
-        _produtoRepository.Incluir(_produtoInclusaoEvento.Produto);
+        _produtoRepository.Alterar(_produtoAlteracaoEvento.Produto);
 
         _eventoRepository.Incluir(new Evento()
         {
-            Message = JsonSerializer.Serialize(_produtoInclusaoEvento.Produto),
+            Message = JsonSerializer.Serialize(_produtoAlteracaoEvento.Produto),
             Exchange = exchange,
             Tipo = "Consumer",
-            Operacao = "Inclusao"
+            Operacao = "Alteracao"
         });
     }
 }

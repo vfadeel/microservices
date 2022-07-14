@@ -21,6 +21,8 @@ builder.Services.AddScoped<ProdutoInclusaoPublisher>();
 builder.Services.AddScoped<ProdutoAlteracaoPublisher>();
 builder.Services.AddScoped<ProdutoExclusaoPublisher>();
 
+builder.Services.AddHostedService<MovimentoEstoqueInclusaoConsumer>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

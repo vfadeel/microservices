@@ -1,5 +1,5 @@
 using Dapper;
-using Venda.Infrastructure;
+using Infraestrutura.Database;
 using Venda.Models;
 
 namespace Venda.Repositories
@@ -25,7 +25,8 @@ namespace Venda.Repositories
                 int id = connection.Execute(@"INSERT INTO Cliente (Nome,
                                                                    Endereco) 
                                               VALUES (@Nome,
-                                                      @Endereco)",
+                                                      @Endereco);
+                                              SELECT last_insert_rowid()",
                                              param: _cliente);
 
                 return id;

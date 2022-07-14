@@ -4,14 +4,14 @@ using RabbitMQ.Client;
 using Venda.Models;
 using Venda.Repositories;
 
-public class ProdutoInclusaoConsumer : BasicConsumer
+public class ProdutoExclusaoConsumer : BasicConsumer
 {
-    private const string exchange = "ProdutoInclusao";
-    private const string queue = "ProdutoInclusaoVenda";
+    private const string exchange = "ProdutoExclusao";
+    private const string queue = "ProdutoExclusaoVenda";
     private readonly ProdutoRepository _produtoRepository;
     private readonly EventoRepository _eventoRepository;
 
-    public ProdutoInclusaoConsumer(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
+    public ProdutoExclusaoConsumer(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
     {
         using (var scope = serviceScopeFactory.CreateScope())
         {
@@ -31,16 +31,16 @@ public class ProdutoInclusaoConsumer : BasicConsumer
 
     public override void ProcessarMensagem(string Mensagem)
     {
-        ProdutoInclusaoEvento? _produtoInclusaoEvento = JsonSerializer.Deserialize<ProdutoInclusaoEvento>(Mensagem);
+        ProdutoExclusaoEvento? _produtoExclusaoEvento = JsonSerializer.Deserialize<ProdutoExclusaoEvento>(Mensagem);
 
-        _produtoRepository.Incluir(_produtoInclusaoEvento.Produto);
+        _produtoRepository.Excluir(_produtoExclusaoEvento.IdProduto);
 
         _eventoRepository.Incluir(new Evento()
         {
-            Message = JsonSerializer.Serialize(_produtoInclusaoEvento.Produto),
+            Message = JsonSerializer.Serialize(_produtoExclusaoEvento.IdProduto),
             Exchange = exchange,
             Tipo = "Consumer",
-            Operacao = "Inclusao"
+            Operacao = "Exclusao"
         });
     }
 }
