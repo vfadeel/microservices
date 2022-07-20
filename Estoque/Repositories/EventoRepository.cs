@@ -1,109 +1,74 @@
 using Dapper;
 using Infraestrutura.Database;
 using Estoque.Models;
+using System.Data;
 
 namespace Estoque.Repositories
 {
     public class EventoRepository
     {
-        private IDatabase _database;
+        private ConnectionManager _connectionManager;
 
-        public EventoRepository(IDatabase database)
+        public EventoRepository(ConnectionManager connectionManager)
         {
-            _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(Evento _evento)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO Evento (Message,
+            int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO Evento (Message,
                                                                   Exchange) 
-                                              VALUES (@Message,
-                                                      @Exchange);
-                                              SELECT last_insert_rowid()",
-                                             param: _evento);
+                                                           VALUES (@Message,
+                                                                   @Exchange);
+                                                           SELECT last_insert_rowid()",
+                                                      param: _evento);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
         }
 
         public void Excluir(int IdEvento)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                connection.Execute(@"DELETE FROM Evento WHERE IdEvento = @IdEvento",
-                                    param: new { IdEvento });
+            connection.Execute(@"DELETE FROM Evento WHERE IdEvento = @IdEvento",
+                                param: new { IdEvento });
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
         }
 
         public Evento Selecionar(int IdEvento)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                Evento _evento = connection.QueryFirstOrDefault<Evento>(@"SELECT *
+            Evento _evento = connection.QueryFirstOrDefault<Evento>(@"SELECT *
                                                                           FROM Evento
                                                                           WHERE IdEvento = @IdEvento",
-                                                                         param: new { IdEvento });
+                                                                     param: new { IdEvento });
 
-                return _evento;
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
+            return _evento;
+
         }
 
         public IEnumerable<Evento> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                var _lstEvento = connection.Query<Evento>(@"SELECT *
+            var _lstEvento = connection.Query<Evento>(@"SELECT *
                                                             FROM Evento");
 
-                return _lstEvento;
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
-        }
+            _connectionManager.CloseIfNotPersistent();
 
-        public void SetConnection(IDatabase database)
-        {
-            _database = database;
+            return _lstEvento;
         }
-
     }
 }

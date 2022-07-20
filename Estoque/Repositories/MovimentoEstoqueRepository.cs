@@ -6,123 +6,82 @@ namespace Estoque.Repositories
 {
     public class MovimentoEstoqueRepository
     {
-        private readonly IDatabase _database;
+        private readonly ConnectionManager _connectionManager;
 
-        public MovimentoEstoqueRepository(IDatabase database)
+        public MovimentoEstoqueRepository(ConnectionManager connectionManager)
         {
-            _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(MovimentoEstoque _movimentoEstoque)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO MovimentoEstoque (IdProduto,
+            int id = connection.QueryFirstOrDefault<int>(@"INSERT INTO MovimentoEstoque (IdProduto,
                                                                             Quantidade,
                                                                             Tipo) 
                                               VALUES (@IdProduto,
                                                       @Quantidade,
                                                       @Tipo);
                                               SELECT last_insert_rowid()",
-                                             param: _movimentoEstoque);
+                                         param: _movimentoEstoque);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
         }
 
         public void Alterar(MovimentoEstoque _movimentoEstoque)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                connection.Execute(@"UPDATE MovimentoEstoque
+            connection.Execute(@"UPDATE MovimentoEstoque
                                      SET IdProduto  = @IdProduto,
                                          Quantidade = @Quantidade,
                                          Tipo       = @Tipo
                                      WHERE IdMovimentoEstoque = @IdMovimentoEstoque",
-                                    param: _movimentoEstoque);
+                                param: _movimentoEstoque);
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
         }
 
         public void Excluir(int IdMovimentoEstoque)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            connection.Execute(@"DELETE FROM MovimentoEstoque WHERE IdMovimentoEstoque = @IdMovimentoEstoque",
+                                param: new { IdMovimentoEstoque });
 
-            try
-            {
-                connection.Execute(@"DELETE FROM MovimentoEstoque WHERE IdMovimentoEstoque = @IdMovimentoEstoque",
-                                    param: new { IdMovimentoEstoque });
-
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
         }
 
         public MovimentoEstoque Selecionar(int IdMovimentoEstoque)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            MovimentoEstoque _movimentoEstoque = connection.QueryFirstOrDefault<MovimentoEstoque>(@"SELECT *
+                                                                                                    FROM MovimentoEstoque
+                                                                                                    WHERE IdMovimentoEstoque = @IdMovimentoEstoque",
+                                                                                                 param: new { IdMovimentoEstoque });
 
-            try
-            {
-                MovimentoEstoque _movimentoEstoque = connection.QueryFirstOrDefault<MovimentoEstoque>(@"SELECT *
-                                                                                                        FROM MovimentoEstoque
-                                                                                                        WHERE IdMovimentoEstoque = @IdMovimentoEstoque",
-                                                                                                         param: new { IdMovimentoEstoque });
+            _connectionManager.CloseIfNotPersistent();
 
-                return _movimentoEstoque;
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            return _movimentoEstoque;
+
         }
 
         public IEnumerable<MovimentoEstoque> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            var _lstMovimentoEstoque = connection.Query<MovimentoEstoque>(@"SELECT *
+                                                                            FROM MovimentoEstoque");
 
-            try
-            {
-                var _lstMovimentoEstoque = connection.Query<MovimentoEstoque>(@"SELECT *
-                                                                                FROM MovimentoEstoque");
 
-                return _lstMovimentoEstoque;
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
+            return _lstMovimentoEstoque;
         }
 
     }

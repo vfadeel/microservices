@@ -1,6 +1,7 @@
 using Compra.Models;
 using Compra.Publishers;
 using Compra.Repositories;
+using Infraestrutura.Database;
 using Infraestrutura.Publishers;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.Serialization;
@@ -13,25 +14,42 @@ public class CompraController : ControllerBase
 {
     private readonly CompraRepository _compraRepository;
     private readonly MovimentoEstoqueInclusaoPublisher _movimentoEstoqueInclusaoPublisher;
+    private readonly UnitOfWork _unitOfWork;
 
     public CompraController(CompraRepository compraRepository,
-                            MovimentoEstoqueInclusaoPublisher movimentoEstoqueInclusaoPublisher)
+                            MovimentoEstoqueInclusaoPublisher movimentoEstoqueInclusaoPublisher,
+                            UnitOfWork unitOfWork)
     {
         _compraRepository = compraRepository;
         _movimentoEstoqueInclusaoPublisher = movimentoEstoqueInclusaoPublisher;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpPost]
     public int Incluir(Compra.Models.Compra _compra)
     {
-        return _compraRepository.Incluir(_compra);
+        _unitOfWork.Start();
 
-        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+        try
         {
-            IdProduto = _compra.IdProduto,
-            Quantidade = _compra.Quantidade,
-            Tipo = "Entrada"
-        });
+            int IdCompra = _compraRepository.Incluir(_compra);
+
+            _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+            {
+                IdProduto = _compra.IdProduto,
+                Quantidade = _compra.Quantidade,
+                Tipo = "Entrada"
+            });
+
+            _unitOfWork.Commit();
+
+            return IdCompra;
+        }
+        catch
+        {
+            _unitOfWork.Rollback();
+            throw;
+        }
     }
 
     [HttpPut]
@@ -56,15 +74,30 @@ public class CompraController : ControllerBase
     [HttpDelete("{IdCompra}")]
     public void Excluir(int IdCompra)
     {
-        Compra.Models.Compra _compra = _compraRepository.Selecionar(IdCompra);
+        _unitOfWork.Start();
 
-        _compraRepository.Excluir(_compra.IdCompra);
-
-        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+        try
         {
-            IdProduto = _compra.IdProduto,
-            Quantidade = _compra.Quantidade,
-            Tipo = "Saida"
-        });
+            Compra.Models.Compra _compra = _compraRepository.Selecionar(IdCompra);
+
+            _compraRepository.Excluir(_compra.IdCompra);
+
+            _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+            {
+                IdProduto = _compra.IdProduto,
+                Quantidade = _compra.Quantidade,
+                Tipo = "Saida"
+            });
+
+            _unitOfWork.Commit();
+
+        }
+        catch
+        {
+            _unitOfWork.Rollback();
+            throw;
+        }
+
+
     }
 }

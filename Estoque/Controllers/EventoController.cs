@@ -1,6 +1,7 @@
 using Estoque.Models;
 using Estoque.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Infraestrutura.Database;
 
 namespace Estoque.Controllers;
 

@@ -14,6 +14,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<ProdutoAlteracaoConsumer>();
 builder.Services.AddHostedService<ProdutoInclusaoConsumer>();
 builder.Services.AddHostedService<ProdutoExclusaoConsumer>();
+builder.Services.AddScoped<ConnectionManager>();
+builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<IMessageBroker, RabbitMessageBroker>();
 builder.Services.AddScoped<IDatabase, SQLiteDatabase>();
 builder.Services.AddScoped<EventoRepository>();

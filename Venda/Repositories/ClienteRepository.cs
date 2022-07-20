@@ -6,121 +6,86 @@ namespace Venda.Repositories
 {
     public class ClienteRepository
     {
-        private readonly IDatabase _database;
+        private readonly ConnectionManager _connectionManager;
 
-        public ClienteRepository(IDatabase database)
+        public ClienteRepository(ConnectionManager connectionManager)
         {
-            _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(Cliente _cliente)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                int id = connection.Execute(@"INSERT INTO Cliente (Nome,
+            int id = connection.Execute(@"INSERT INTO Cliente (Nome,
                                                                    Endereco) 
                                               VALUES (@Nome,
                                                       @Endereco);
                                               SELECT last_insert_rowid()",
-                                             param: _cliente);
+                                         param: _cliente);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
+
         }
 
         public void Alterar(Cliente _cliente)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                connection.Execute(@"UPDATE Cliente
+            connection.Execute(@"UPDATE Cliente
                                      SET IdCliente = @IdCliente,
                                          Nome         = @Nome,
                                          Endereco     = @Endereco
                                      WHERE IdCliente = @IdCliente",
-                                    param: _cliente);
+                                param: _cliente);
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
         }
 
         public void Excluir(int IdCliente)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                connection.Execute(@"DELETE FROM Cliente WHERE IdCliente = @IdCliente",
-                                    param: new { IdCliente });
+            connection.Execute(@"DELETE FROM Cliente WHERE IdCliente = @IdCliente",
+                                param: new { IdCliente });
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
         }
 
         public Cliente Selecionar(int IdCliente)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                Cliente _cliente = connection.QueryFirstOrDefault<Cliente>(@"SELECT *
+            Cliente _cliente = connection.QueryFirstOrDefault<Cliente>(@"SELECT *
                                                                              FROM Cliente
                                                                              WHERE IdCliente = @IdCliente",
-                                                                              param: new { IdCliente });
+                                                                          param: new { IdCliente });
 
-                return _cliente;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
+
+            return _cliente;
+
         }
 
         public IEnumerable<Cliente> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            var _lstCliente = connection.Query<Cliente>(@"SELECT *
+                                                          FROM Cliente");
 
-            try
-            {
-                var _lstCliente = connection.Query<Cliente>(@"SELECT *
-                                                              FROM Cliente");
 
-                return _lstCliente;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
+            return _lstCliente;
+
         }
 
     }

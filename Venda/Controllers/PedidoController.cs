@@ -2,6 +2,7 @@ using Venda.Models;
 using Venda.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Venda.Publishers;
+using Infraestrutura.Database;
 
 namespace Venda.Controllers;
 
@@ -11,27 +12,43 @@ public class PedidoController : ControllerBase
 {
     private readonly PedidoRepository _pedidoRepository;
     private readonly MovimentoEstoqueInclusaoPublisher _movimentoEstoqueInclusaoPublisher;
+    private readonly UnitOfWork _unitOfWork;
 
     public PedidoController(PedidoRepository pedidoRepository,
-                            MovimentoEstoqueInclusaoPublisher movimentoEstoqueInclusaoPublisher)
+                            MovimentoEstoqueInclusaoPublisher movimentoEstoqueInclusaoPublisher,
+                            UnitOfWork unitOfWork)
     {
         _pedidoRepository = pedidoRepository;
         _movimentoEstoqueInclusaoPublisher = movimentoEstoqueInclusaoPublisher;
+        _unitOfWork = unitOfWork;
     }
 
     [HttpPost]
     public int Incluir(Pedido _pedido)
     {
-        int IdPedido = _pedidoRepository.Incluir(_pedido);
+        _unitOfWork.Start();
 
-        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+        try
         {
-            IdProduto = _pedido.IdProduto,
-            Quantidade = _pedido.Quantidade,
-            Tipo = "Saida"
-        });
+            int IdPedido = _pedidoRepository.Incluir(_pedido);
 
-        return IdPedido;
+            _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+            {
+                IdProduto = _pedido.IdProduto,
+                Quantidade = _pedido.Quantidade,
+                Tipo = "Saida"
+            });
+
+            _unitOfWork.Commit();
+
+            return IdPedido;
+        }
+        catch
+        {
+            _unitOfWork.Rollback();
+            throw;
+        }
+
     }
 
     [HttpPut]
@@ -55,15 +72,28 @@ public class PedidoController : ControllerBase
     [HttpDelete("{IdPedido}")]
     public void Excluir(int IdPedido)
     {
-        Pedido _pedido = _pedidoRepository.Selecionar(IdPedido);
 
-        _pedidoRepository.Excluir(_pedido.IdPedido);
+        _unitOfWork.Start();
 
-        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+        try
         {
-            IdProduto = _pedido.IdProduto,
-            Quantidade = _pedido.Quantidade,
-            Tipo = "Entrada"
-        });
+            Pedido _pedido = _pedidoRepository.Selecionar(IdPedido);
+
+            _pedidoRepository.Excluir(_pedido.IdPedido);
+
+            _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+            {
+                IdProduto = _pedido.IdProduto,
+                Quantidade = _pedido.Quantidade,
+                Tipo = "Entrada"
+            });
+
+            _unitOfWork.Commit();
+        }
+        catch
+        {
+            _unitOfWork.Rollback();
+            throw;
+        }
     }
 }

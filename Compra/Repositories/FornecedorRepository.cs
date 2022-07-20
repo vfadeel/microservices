@@ -6,120 +6,85 @@ namespace Compra.Repositories
 {
     public class FornecedorRepository
     {
-        private readonly IDatabase _database;
+        private readonly ConnectionManager _connectionManager;
 
-        public FornecedorRepository(IDatabase database)
+        public FornecedorRepository(ConnectionManager connectionManager)
         {
-            _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(Fornecedor _fornecedor)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                int id = connection.Execute(@"INSERT INTO Fornecedor (Nome,
+            int id = connection.Execute(@"INSERT INTO Fornecedor (Nome,
                                                                       Endereco) 
                                               VALUES (@Nome,
                                                       @Endereco)",
-                                             param: _fornecedor);
+                                         param: _fornecedor);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
+
         }
 
         public void Alterar(Fornecedor _fornecedor)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                connection.Execute(@"UPDATE Fornecedor
+            connection.Execute(@"UPDATE Fornecedor
                                      SET IdFornecedor = @IdFornecedor,
                                          Nome         = @Nome,
                                          Endereco     = @Endereco
                                      WHERE IdFornecedor = @IdFornecedor",
-                                    param: _fornecedor);
+                                param: _fornecedor);
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
         }
 
         public void Excluir(int IdFornecedor)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            connection.Execute(@"DELETE FROM Fornecedor WHERE IdFornecedor = @IdFornecedor",
+                                param: new { IdFornecedor });
 
-            try
-            {
-                connection.Execute(@"DELETE FROM Fornecedor WHERE IdFornecedor = @IdFornecedor",
-                                    param: new { IdFornecedor });
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
         }
 
         public Fornecedor Selecionar(int IdFornecedor)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                Fornecedor _fornecedor = connection.QueryFirstOrDefault<Fornecedor>(@"SELECT *
+            Fornecedor _fornecedor = connection.QueryFirstOrDefault<Fornecedor>(@"SELECT *
                                                                                       FROM Fornecedor
                                                                                       WHERE IdFornecedor = @IdFornecedor",
-                                                                                       param: new { IdFornecedor });
+                                                                                   param: new { IdFornecedor });
 
-                return _fornecedor;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
+
+
+            return _fornecedor;
+
         }
 
         public IEnumerable<Fornecedor> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                var _lstFornecedor = connection.Query<Fornecedor>(@"SELECT *
+            var _lstFornecedor = connection.Query<Fornecedor>(@"SELECT *
                                                                     FROM Fornecedor");
 
-                return _lstFornecedor;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
+
+            return _lstFornecedor;
         }
 
     }

@@ -12,6 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<ConnectionManager>();
+builder.Services.AddScoped<UnitOfWork>();
 builder.Services.AddScoped<IDatabase, SQLiteDatabase>();
 builder.Services.AddScoped<IMessageBroker, RabbitMessageBroker>();
 builder.Services.AddScoped<EventoRepository>();
