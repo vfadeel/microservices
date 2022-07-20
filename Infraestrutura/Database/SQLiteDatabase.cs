@@ -8,7 +8,7 @@ namespace Infraestrutura.Database
     public class SQLiteDatabase : IDatabase
     {
         private readonly IConfiguration _configuration;
-
+        
         public SQLiteDatabase(IConfiguration configuration)
         {
             _configuration = configuration;

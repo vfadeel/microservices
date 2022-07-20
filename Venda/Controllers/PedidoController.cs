@@ -24,7 +24,8 @@ public class PedidoController : ControllerBase
     {
         int IdPedido = _pedidoRepository.Incluir(_pedido);
 
-        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento(){
+        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+        {
             IdProduto = _pedido.IdProduto,
             Quantidade = _pedido.Quantidade,
             Tipo = "Saida"
@@ -52,8 +53,17 @@ public class PedidoController : ControllerBase
     }
 
     [HttpDelete("{IdPedido}")]
-    public void Excluir(int IdCliente)
+    public void Excluir(int IdPedido)
     {
-        _pedidoRepository.Excluir(IdCliente);
+        Pedido _pedido = _pedidoRepository.Selecionar(IdPedido);
+
+        _pedidoRepository.Excluir(_pedido.IdPedido);
+
+        _movimentoEstoqueInclusaoPublisher.Publicar(new MovimentoEstoqueInclusaoEvento()
+        {
+            IdProduto = _pedido.IdProduto,
+            Quantidade = _pedido.Quantidade,
+            Tipo = "Entrada"
+        });
     }
 }

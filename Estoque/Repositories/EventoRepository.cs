@@ -6,7 +6,7 @@ namespace Estoque.Repositories
 {
     public class EventoRepository
     {
-        private readonly IDatabase _database;
+        private IDatabase _database;
 
         public EventoRepository(IDatabase database)
         {
@@ -98,6 +98,11 @@ namespace Estoque.Repositories
                 connection.Close();
                 throw;
             }
+        }
+
+        public void SetConnection(IDatabase database)
+        {
+            _database = database;
         }
 
     }
