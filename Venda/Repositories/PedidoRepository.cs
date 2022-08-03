@@ -1,5 +1,5 @@
 using Dapper;
-using Venda.Infrastructure;
+using Infraestrutura.Database;
 using Venda.Models;
 
 namespace Venda.Repositories
@@ -7,119 +7,88 @@ namespace Venda.Repositories
     public class PedidoRepository
     {
         private readonly IDatabase _database;
+        private readonly ConnectionManager _connectionManager;
 
-        public PedidoRepository(IDatabase database)
+        public PedidoRepository(IDatabase database,
+                                ConnectionManager connectionManager)
         {
             _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(Pedido _compra)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                int id = connection.Execute(@"INSERT INTO Pedido (IdProduto,
+            int id = connection.Execute(@"INSERT INTO Pedido (IdProduto,
                                                                   Quantidade) 
                                               VALUES (@IdProduto,
-                                                      @Quantidade)",
-                                             param: _compra);
+                                                      @Quantidade);
+                                              SELECT last_insert_rowid()",
+                                         param: _compra);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
+
         }
 
         public void Alterar(Pedido _compra)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                connection.Execute(@"UPDATE Pedido
+            connection.Execute(@"UPDATE Pedido
                                      SET IdPedido   = @IdPedido,
                                          IdProduto  = @IdProduto,
                                          QUantidade = @Quantidade
                                      WHERE IdPedido = @IdPedido",
-                                    param: _compra);
+                                param: _compra);
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
         }
 
         public void Excluir(int IdPedido)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                connection.Execute(@"DELETE FROM Pedido WHERE IdPedido = @IdPedido",
-                                    param: new { IdPedido });
+            connection.Execute(@"DELETE FROM Pedido WHERE IdPedido = @IdPedido",
+                                param: new { IdPedido });
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
         }
 
         public Pedido Selecionar(int IdPedido)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                Pedido _compra = connection.QueryFirstOrDefault<Pedido>(@"SELECT *
-                                                                                                      FROM Pedido
-                                                                                                      WHERE IdPedido = @IdPedido",
-                                                                                                       param: new { IdPedido });
+            Pedido _compra = connection.QueryFirstOrDefault<Pedido>(@"SELECT *
+                                                                      FROM Pedido
+                                                                      WHERE IdPedido = @IdPedido",
+                                                                   param: new { IdPedido });
 
-                return _compra;
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
+
+            return _compra;
+
         }
 
         public IEnumerable<Pedido> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            var _lstPedido = connection.Query<Pedido>(@"SELECT *
+                                                        FROM Pedido");
 
-            try
-            {
-                var _lstPedido = connection.Query<Pedido>(@"SELECT *
-                                                                          FROM Pedido");
+            _connectionManager.CloseIfNotPersistent();
 
-                return _lstPedido;
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            return _lstPedido;
         }
 
     }

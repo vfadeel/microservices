@@ -1,5 +1,5 @@
 using Dapper;
-using Venda.Infrastructure;
+using Infraestrutura.Database;
 using Venda.Models;
 
 namespace Venda.Repositories
@@ -7,118 +7,85 @@ namespace Venda.Repositories
     public class ProdutoRepository
     {
         private readonly IDatabase _database;
+        private readonly ConnectionManager _connectionManager;
 
-        public ProdutoRepository(IDatabase database)
+        public ProdutoRepository(IDatabase database,
+                                 ConnectionManager connectionManager)
         {
             _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(Produto _produto)
         {
-            var connection = _database.GetConnection();
 
-            connection.Open();
+            var connection = _connectionManager.GetConnection();
 
-            try
-            {
-                int id = connection.Execute(@"INSERT INTO Produto (Nome, 
+            int id = connection.Execute(@"INSERT INTO Produto (IdProduto,
+                                                                   Nome, 
                                                                    Preco) 
-                                              VALUES (@Nome, 
-                                                      @Preco)",
-                                             param: _produto);
+                                              VALUES (@IdProduto,
+                                                      @Nome, 
+                                                      @Preco);
+                                              SELECT last_insert_rowid()",
+                                         param: _produto);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
+
         }
 
         public void Alterar(Produto _produto)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                connection.Execute(@"UPDATE Produto
+            connection.Execute(@"UPDATE Produto
                                      SET Nome  = @Nome,
                                          Preco = @Preco
                                      WHERE IdProduto = @IdProduto",
-                                    param: _produto);
+                                param: _produto);
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
+
         }
 
         public void Excluir(int IdProduto)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            connection.Execute(@"DELETE FROM Produto WHERE IdProduto = @IdProduto",
+                                param: new { IdProduto });
 
-            try
-            {
-                connection.Execute(@"DELETE FROM Produto WHERE IdProduto = @IdProduto",
-                                    param: new { IdProduto });
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
         }
 
         public Produto Selecionar(int IdProduto)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                Produto _produto = connection.QueryFirstOrDefault<Produto>(@"SELECT *
+            Produto _produto = connection.QueryFirstOrDefault<Produto>(@"SELECT *
                                                                              FROM Produto
                                                                              WHERE IdProduto = @IdProduto",
-                                                                              param: new { IdProduto });
+                                                                          param: new { IdProduto });
 
-                return _produto;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
+
+            return _produto;
         }
 
         public IEnumerable<Produto> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            var _lstProduto = connection.Query<Produto>(@"SELECT *
+                                                          FROM Produto");
 
-            try
-            {
-                var _lstProduto = connection.Query<Produto>(@"SELECT *
-                                                              FROM Produto");
+            _connectionManager.CloseIfNotPersistent();
 
-                return _lstProduto;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            return _lstProduto;
         }
 
     }

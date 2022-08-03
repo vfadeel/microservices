@@ -3,6 +3,7 @@ using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using Microsoft.Extensions.Configuration;
+using Infraestrutura.Messager;
 
 namespace Infraestrutura.Publishers
 {
@@ -24,6 +25,8 @@ namespace Infraestrutura.Publishers
 
             string mensagem = JsonSerializer.Serialize(model);
 
+            this.RegistrarEvento(mensagem);
+
             var body = Encoding.UTF8.GetBytes(mensagem);
 
             _channel.BasicPublish(exchange: exchange,
@@ -31,6 +34,8 @@ namespace Infraestrutura.Publishers
                                  basicProperties: null,
                                  body: body);
         }
+
+        public abstract void RegistrarEvento(string message);
 
         public abstract void CriarQueue();
 

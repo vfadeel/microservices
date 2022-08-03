@@ -1,6 +1,7 @@
 using Compra.Consumers;
-using Compra.Infrastructure;
 using Compra.Repositories;
+using Infraestrutura.Database;
+using Infraestrutura.Messager;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,11 +12,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<UnitOfWork>();
+builder.Services.AddScoped<ConnectionManager>();
 builder.Services.AddScoped<IDatabase, SQLiteDatabase>();
 builder.Services.AddScoped<IMessageBroker, RabbitMessageBroker>();
 builder.Services.AddScoped<FornecedorRepository>();
 builder.Services.AddScoped<CompraRepository>();
 builder.Services.AddScoped<ProdutoRepository>();
+builder.Services.AddScoped<EventoRepository>();
 
 builder.Services.AddHostedService<ProdutoInclusaoConsumer>();
 builder.Services.AddHostedService<ProdutoAlteracaoConsumer>();

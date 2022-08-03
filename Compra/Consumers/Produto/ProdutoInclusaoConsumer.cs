@@ -1,10 +1,9 @@
 using System.Text;
 using System.Text.Json;
-using Compra.Infrastructure;
 using Compra.Models;
 using Compra.Repositories;
+using Infraestrutura.Consumers;
 using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Compra.Consumers
 {
@@ -13,12 +12,14 @@ namespace Compra.Consumers
         private const string exchange = "ProdutoInclusao";
         private const string queue = "ProdutoInclusaoCompra";
         private readonly ProdutoRepository _produtoRepository;
+        private readonly EventoRepository _eventoRepository;
 
         public ProdutoInclusaoConsumer(IServiceScopeFactory serviceScopeFactory) : base(serviceScopeFactory)
         {
             using (var scope = serviceScopeFactory.CreateScope())
             {
                 _produtoRepository = scope.ServiceProvider.GetRequiredService<ProdutoRepository>();
+                _eventoRepository = scope.ServiceProvider.GetRequiredService<EventoRepository>();
             }
         }
 
@@ -33,9 +34,17 @@ namespace Compra.Consumers
 
         public override void ProcessarMensagem(string Mensagem)
         {
-            Produto? _produto = JsonSerializer.Deserialize<Produto>(Mensagem);
+            ProdutoInclusaoEvento? _produtoInclusaoEvento = JsonSerializer.Deserialize<ProdutoInclusaoEvento>(Mensagem);
 
-            _produtoRepository.Incluir(_produto);
+            _produtoRepository.Incluir(_produtoInclusaoEvento.Produto);
+
+            _eventoRepository.Incluir(new Evento()
+            {
+                Message = JsonSerializer.Serialize(_produtoInclusaoEvento.Produto),
+                Exchange = exchange,
+                Tipo = "Consumer",
+                Operacao = "Inclusao"
+            });
         }
     }
 }

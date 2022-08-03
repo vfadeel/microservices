@@ -1,124 +1,83 @@
 using Dapper;
-using Compra.Infrastructure;
+using Infraestrutura.Database;
 
 namespace Compra.Repositories
 {
     public class CompraRepository
     {
-        private readonly IDatabase _database;
+        private readonly ConnectionManager _connectionManager;
 
-        public CompraRepository(IDatabase database)
+        public CompraRepository(ConnectionManager connectionManager)
         {
-            _database = database;
-
+            _connectionManager = connectionManager;
         }
 
         public int Incluir(Compra.Models.Compra _compra)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                int id = connection.Execute(@"INSERT INTO Compra (IdProduto,
+            int id = connection.Execute(@"INSERT INTO Compra (IdProduto,
                                                                   Quantidade) 
                                               VALUES (@IdProduto,
                                                       @Quantidade)",
-                                             param: _compra);
+                                         param: _compra);
 
-                return id;
+            _connectionManager.CloseIfNotPersistent();
 
-            }
-            catch
-            {
-                connection.Close();
-                throw;
-            }
+            return id;
         }
 
         public void Alterar(Compra.Models.Compra _compra)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                connection.Execute(@"UPDATE Compra
+            connection.Execute(@"UPDATE Compra
                                      SET IdCompra   = @IdCompra,
                                          IdProduto  = @IdProduto,
                                          QUantidade = @Quantidade
                                      WHERE IdCompra = @IdCompra",
-                                    param: _compra);
+                                param: _compra);
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
         }
 
         public void Excluir(int IdCompra)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            connection.Execute(@"DELETE FROM Compra WHERE IdCompra = @IdCompra",
+                                param: new { IdCompra });
 
-            try
-            {
-                connection.Execute(@"DELETE FROM Compra WHERE IdCompra = @IdCompra",
-                                    param: new { IdCompra });
 
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            _connectionManager.CloseIfNotPersistent();
         }
 
         public Compra.Models.Compra Selecionar(int IdCompra)
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
-
-            try
-            {
-                Compra.Models.Compra _compra = connection.QueryFirstOrDefault<Compra.Models.Compra>(@"SELECT *
+            Compra.Models.Compra _compra = connection.QueryFirstOrDefault<Compra.Models.Compra>(@"SELECT *
                                                                                                       FROM Compra
                                                                                                       WHERE IdCompra = @IdCompra",
-                                                                                                       param: new { IdCompra });
+                                                                                                   param: new { IdCompra });
 
-                return _compra;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+
+            _connectionManager.CloseIfNotPersistent();
+
+            return _compra;
+
         }
 
         public IEnumerable<Compra.Models.Compra> SelecionarTodos()
         {
-            var connection = _database.GetConnection();
+            var connection = _connectionManager.GetConnection();
 
-            connection.Open();
+            var _lstCompra = connection.Query<Compra.Models.Compra>(@"SELECT *
+                                                                      FROM Compra");
 
-            try
-            {
-                var _lstCompra = connection.Query<Compra.Models.Compra>(@"SELECT *
-                                                                          FROM Compra");
+            _connectionManager.CloseIfNotPersistent();
 
-                return _lstCompra;
-            }
-            catch 
-            {
-                connection.Close();
-                throw;
-            }
+            return _lstCompra;
         }
 
     }
